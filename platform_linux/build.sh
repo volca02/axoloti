@@ -60,9 +60,9 @@ case $OS in
     Archlinux|Arch|ManjaroLinux)
         echo "pacman -Syy"
         sudo pacman -Syy
-        echo "pacman -S --noconfirm apache-ant libtool automake autoconf curl lib32-ncurses lib32-bzip2"
+        echo "pacman -S --noconfirm apache-ant libtool automake autoconf curl lib32-ncurses lib32-bzip2 p7zip"
         sudo pacman -S --noconfirm apache-ant libtool automake autoconf curl \
-             lib32-ncurses lib32-bzip2
+             lib32-ncurses lib32-bzip2 p7zip
         ;;
     Gentoo)
 	echo "detected Gentoo"
@@ -92,24 +92,31 @@ CH_VERSION=18.2.2
 if [ ! -d "${PLATFORM_ROOT}/../ChibiOS_${CH_VERSION}" ];
 then
     cd "${PLATFORM_ROOT}/src"
+    CH_VERSION=18.2.2
     ARDIR=ChibiOS_${CH_VERSION}
     ARCHIVE=${ARDIR}.zip
     if [ ! -f ${ARCHIVE} ];
     then
-        echo "downloading ${ARCHIVE}"
-        curl -L https://sourceforge.net/projects/chibios/files/ChibiOS%20GPL3/Version%20${CH_VERSION}/${ARCHIVE} > ${ARCHIVE}
+        echo "##### downloading ${ARCHIVE} #####"
+        curl -L "https://github.com/ChibiOS/ChibiOS/archive/ver${CH_VERSION}.zip" > ${ARCHIVE}
     else
         echo "${ARCHIVE} already downloaded"
     fi
     unzip -q -o ${ARCHIVE}
+
+    mv ChibiOS-ver${CH_VERSION} ${ARDIR}
+
     cd ${ARDIR}/ext
+
+    pwd
     7z x ./fatfs-0.13_patched.7z
     cd ../../
+    rm -rf ../../${ARDIR}
     mv ${ARDIR} ../..
 
 
     echo "fixing ChibiOS community from Axoloti/ChibiOS-Contrib"
-    cd ${PLATFORM_ROOT}/../ChibiOS_${CH_VERSION}
+    cd ${PLATFORM_ROOT}/../${ARDIR}
     rm -rf community
     git clone https://github.com/axoloti/ChibiOS-Contrib.git community
     cd community
